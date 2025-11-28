@@ -15,10 +15,10 @@ class StegoDetector:
         print("Accuracy:", accuracy_score(y_test, y_pred))
         print("F1-score:", f1_score(y_test, y_pred))
 
-    def save(self, path='detector_model1.pkl'):
+    def save(self, path='detector_model2.pkl'):
         joblib.dump(self.model, path)
 
-    def load(self, path='detector_model1.pkl'):
+    def load(self, path='detector_model2.pkl'):
         self.model = joblib.load(path)
 
     def predict(self, X):

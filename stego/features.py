@@ -1,18 +1,37 @@
 import numpy as np
 from PIL import Image
-from scipy.stats import skew, kurtosis
+from scipy.stats import entropy
 
 def extract_features(image_path):
-    img = Image.open(image_path).convert('RGB')
-    pixels = np.array(img).reshape(-1,3)
+    img = np.array(Image.open(image_path).convert("L"))  # grayscale
+
+    total_pixels = img.size
+
+    # 1. LSB plane
+    lsb_plane = img & 1
     
-    mean = np.mean(pixels, axis=0)
-    var = np.var(pixels, axis=0)
-    skewness = skew(pixels, axis=0)
-    kurt = kurtosis(pixels, axis=0)
+    # 2. LSB histogram (normalized)
+    lsb_hist = np.bincount(lsb_plane.flatten(), minlength=2).astype(float)
+    lsb_hist = lsb_hist / total_pixels  # normalize
 
-    # LSB plane analysis
-    lsb_plane = np.unpackbits(pixels, axis=1)[:,-1]
-    ones_ratio = np.sum(lsb_plane) / lsb_plane.size
+    # 3. Local binary patterns (simple LBP)
+    shifted = np.roll(lsb_plane, 1, axis=1)
+    lbp = (lsb_plane ^ shifted).flatten()
+    lbp_hist = np.bincount(lbp, minlength=2).astype(float)
+    lbp_hist = lbp_hist / total_pixels  # normalize
 
-    return np.concatenate([mean, var, skewness, kurt, [ones_ratio]])
+    # 4. Normalized run-length change ratio
+    diffs = np.diff(lsb_plane.flatten())
+    run_changes = np.sum(diffs != 0) / total_pixels  # normalize
+
+    # 5. Entropy (0–1 range)
+    lsb_entropy = entropy(lsb_hist + 1e-9)  # prevent log(0)
+
+    # Final feature vector length = 2 + 2 + 1 + 1 = 6
+    features = np.concatenate([
+        lsb_hist,           # 2 values
+        lbp_hist,           # 2 values
+        np.array([run_changes, lsb_entropy], dtype=float)  # 2 values
+    ])
+
+    return features

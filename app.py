@@ -78,7 +78,7 @@ with tab3:
             features = extract_features("temp_detect.png").reshape(1,-1)
             
             detector = StegoDetector()
-            detector.load("detector_model1.pkl")  # Pre-trained model
+            detector.load("detector_model2.pkl")  # Pre-trained model
             pred = detector.predict(features)
             
             if pred[0] == 0:
