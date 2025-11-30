@@ -10,3 +10,10 @@ temp_*.png
 
 # Ignore all images folder
 images/
+
+# Ignore the image files
+*png
+*jpg
+*jpeg
+*gif
+*bmp

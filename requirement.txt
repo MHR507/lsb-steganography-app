@@ -1,4 +1,0 @@
-
-venv\Scripts\Activate.ps1
-
-pip install numpy pillow scikit-learn matplotlib scipy streamlit tqdm
